@@ -1,0 +1,93 @@
+Resources:
+  jiraTickets:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: ${self:custom.dynamodb.tables.jiraTickets}
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+        - AttributeName: latest_sprint
+          AttributeType: S
+        - AttributeName: epic_id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: 2
+        WriteCapacityUnits: 8
+      GlobalSecondaryIndexes:
+        - IndexName: "sprint_tickets"
+          KeySchema:
+            - AttributeName: latest_sprint
+              KeyType: "HASH"
+          Projection:
+            ProjectionType: ALL
+          ProvisionedThroughput:
+            ReadCapacityUnits: 2
+            WriteCapacityUnits: 8
+        - IndexName: "epic_tickets"
+          KeySchema:
+            - AttributeName: epic_id
+              KeyType: "HASH"
+          Projection:
+            ProjectionType: ALL
+          ProvisionedThroughput:
+            ReadCapacityUnits: 2
+            WriteCapacityUnits: 8
+  syncTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: ${self:custom.dynamodb.tables.syncTables}
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 1
+  jiraBoards:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: ${self:custom.dynamodb.tables.jiraBoards}
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: N
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: 2
+        WriteCapacityUnits: 2
+  jiraSprints:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: ${self:custom.dynamodb.tables.jiraSprints}
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: N
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: 2
+        WriteCapacityUnits: 2
+  watchingEpics:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: ${self:custom.dynamodb.tables.watchingEpics}
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: 2
+        WriteCapacityUnits: 2
+
+
+
+

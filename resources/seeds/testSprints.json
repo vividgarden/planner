@@ -1,0 +1,29 @@
+[
+  {
+    "id": 1000,
+    "name": "sprint-10",
+    "state": "CLOSED",
+    "start_date": 1564585200000,
+    "end_date": 1565103600000,
+    "complete_date": 1565103600000,
+    "original_board_id": 1000
+  },
+  {
+    "id": 1001,
+    "name": "sprint-11",
+    "state": "CLOSED",
+    "start_date": 1565190000000,
+    "end_date": 1565794800000,
+    "complete_date": 1565794800000,
+    "original_board_id": 1000
+  },
+  {
+    "id": 1002,
+    "name": "sprint-12",
+    "state": "ACTIVE",
+    "start_date": 1565881200000,
+    "end_date": 1566399600000,
+    "complete_date": 1566399600000,
+    "original_board_id": 1000
+  }
+]

@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "target": "es6",
+    "module": "commonjs",
+    "strictNullChecks": true,
+    "newLine": "LF",
+    "noEmitOnError": false,
+    "sourceMap": true,
+    "strict": true,
+    "allowJs": true,
+    "lib": [
+      "es2017"
+    ],
+    "baseUrl": ".",
+    "rootDir": "./",
+    "typeRoots": [
+      "./node_modules/@types",
+      "@types"
+    ]
+  },
+  "exclude": [
+    "node_modules"
+  ]
+}

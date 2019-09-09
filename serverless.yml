@@ -1,0 +1,120 @@
+service: planner
+
+plugins:
+  - serverless-webpack
+  - serverless-offline
+  - serverless-dynamodb-local
+  - serverless-dotenv-plugin
+
+provider:
+  name: aws
+  runtime: nodejs8.10
+  stage: dev
+  region: ap-northeast-1
+  timeout: 30 # 最大30秒
+  environment:
+    # node process.envに引き渡す値 nestしたobjectは渡せないので注意
+    stage: ${opt:stage, self:provider.stage}
+    region: ${self:provider.region}
+    localDynamoPort: ${self:custom.localDynamoPort}
+    dynamoJiraTickets: ${self:custom.dynamodb.tables.jiraTickets}
+    dynamoSyncTables: ${self:custom.dynamodb.tables.syncTables}
+    dynamoJiraBoards: ${self:custom.dynamodb.tables.jiraBoards}
+    dynamoJiraSprints: ${self:custom.dynamodb.tables.jiraSprints}
+    dynamoWatchingEpics: ${self:custom.dynamodb.tables.watchingEpics}
+
+    # Secret情報 (.envから取得)
+    jiraHost: ${env:JIRA_HOST}
+    jiraUser: ${env:JIRA_USER}
+    jiraSecret: ${env:JIRA_SECRET}
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:DescribeTable
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      Resource:
+        - "Fn::GetAtt": [ jiraTickets, Arn ]
+        - "Fn::GetAtt": [ syncTable, Arn ]
+        - "Fn::GetAtt": [ jiraBoards, Arn ]
+        - "Fn::GetAtt": [ jiraSprints, Arn ]
+        - "Fn::GetAtt": [ watchingEpics, Arn ]
+        - Fn::Join:
+          - "/"
+          -
+            - { "Fn::GetAtt": [ jiraTickets , Arn ] }
+            - "index/*"
+    - Effect: Allow
+      Action:
+        - lambda:InvokeFunction
+      Resource: "*"
+
+
+package:
+  excludeDevDependencies: true
+  exclude:
+    - serverless-http
+
+custom:
+  stage: ${opt:stage, self:provider.stage}
+  webpackIncludeModules: true
+  localDynamoPort: 3030
+  serverless-offline:
+    port: 3100
+  webpack:
+    webpackConfig: 'webpack.config.js'
+    packager: 'yarn'
+    packagerOptions: {}
+  dynamodb:
+    tables:
+      jiraTickets: ${self:custom.stage}-planner_jira_tickets
+      syncTables: ${self:custom.stage}-planner_sync_tables
+      jiraBoards: ${self:custom.stage}-planner_jira_boards
+      jiraSprints: ${self:custom.stage}-planner_jira_sprints
+      watchingEpics: ${self:custom.stage}-planner_watching_epics
+    start:
+      port: ${self:custom.localDynamoPort}
+      inMemory: true
+      migrate: true
+      seed: true
+    seed:
+      development:
+        sources:
+          - table: ${self:custom.dynamodb.tables.jiraTickets}
+            sources: [./resources/seeds/testTickets.json]
+          - table: ${self:custom.dynamodb.tables.jiraSprints}
+            sources: [./resources/seeds/testSprints.json]
+
+functions:
+  app:
+    handler: app.handler
+    events:
+      - http:
+          method: ANY
+          path: '/'
+          cors: true
+      - http:
+          method: ANY
+          path: '{proxy+}'
+          cors: true
+  syncBoardJob:
+    handler: src/jobs/syncBoardJob.handler
+    timeout: 300
+    memorySize: 128
+  syncSprintJob:
+    handler: src/jobs/syncSprintJob.handler
+    timeout: 300
+    memorySize: 128
+  syncTicketJob:
+    handler: src/jobs/syncTicketJob.handler
+    timeout: 300
+    memorySize: 128
+
+
+
+resources:
+  - ${file(resources/dynamodb-table.yml)}
