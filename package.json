@@ -10,7 +10,7 @@
     "@types/moment-timezone": "^0.5.12",
     "@types/node": "^12.7.2",
     "@types/webpack": "^4.4.31",
-    "aws-lambda": "^0.1.2",
+    "aws-lambda": "^1.0.5",
     "aws-serverless-express": "^3.3.6",
     "moment": "^2.24.0",
     "path": "^0.12.7",
